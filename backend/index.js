@@ -1,4 +1,35 @@
 var http = require('http');
+const { type } = require('os');
+
+const router = {
+    getShinobi: {
+        type: 'query',
+        handler: ({ input }) => {
+            return {
+                "id": 1,
+                "result": "Shinobi!"
+            }
+        }
+    },
+    getSorcerer: {
+        type: 'query',
+        handler: ({ input }) => {
+            return {
+                "id": 1,
+                "result": "Sorcerer!"
+            }
+        }
+    },
+    addShinobi: {
+        type: 'mutation',
+        handler: ({ input }) => {
+            console.log("===>", input);
+            return {
+                "data": input.name
+            }
+        }
+    },
+}
 
 
 const requestHandler = (req, res) => {
@@ -10,30 +41,42 @@ const requestHandler = (req, res) => {
   req.on('end', function() {
     res.writeHead(200, {'Content-Type': 'application/json'});
 
-    if(req.url === '/rpc') {
-      try {
+    if(req.method !== 'POST') {
+      res.end("Method not allowed");
+      return
+    }
+
+    if(req.url !== '/rpc') {
+        res.end("Not found");
+        return
+    }
+
+
+    try {
         const data = JSON.parse(body);
-        if(data.procedure === 'get-user') {
-          res.end(JSON.stringify({
-            "jsonrpc": "2.0",
-            "id": 1,
-            "result": "Yoda!"
-          }));
-          return
+        const route = router[data.procedure];
+        if(!route || route.type !== data.type) {
+            res.end(JSON.stringify({
+            "error": {
+                "code": -100,
+                "message": "Procedure not found"
+            }
+            }));
+            return
         }
-      } catch(e) {
+
+
+        res.end(JSON.stringify(route.handler({ input: data.body })));
+        return
+    } catch(e) {
         res.end({
             "error": {
-                "code": -32700,
+                "code": -200,
                 "message": "Parse error"
             }
         })
-        return
-      }
-      
+    return
     }
-  
-    res.end('Bad request\n');
   });
 };
 
