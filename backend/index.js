@@ -1,35 +1,27 @@
 var http = require('http');
-const { type } = require('os');
+const { createRPC } = require('./rpc');
 
-const router = {
-    getShinobi: {
-        type: 'query',
-        handler: ({ input }) => {
-            return {
-                "id": 1,
-                "result": "Shinobi!"
-            }
+const rpc = createRPC()
+
+const router = rpc.router({
+    getShinobi: rpc.procedure().query(({ input }) => {
+        return {
+            "id": 1,
+            "result": "Shinobi!"
         }
-    },
-    getSorcerer: {
-        type: 'query',
-        handler: ({ input }) => {
-            return {
-                "id": 1,
-                "result": "Sorcerer!"
-            }
+    }),
+    getSorcerer: rpc.procedure().query(({ input }) => {
+        return {
+            "id": 1,
+            "result": "Sorcerer!"
         }
-    },
-    addShinobi: {
-        type: 'mutation',
-        handler: ({ input }) => {
-            console.log("===>", input);
-            return {
-                "data": input.name
-            }
+    }),
+    addShinobi: rpc.procedure().mutation(({ input }) => {
+        return {
+            "data": input.name
         }
-    },
-}
+    })
+})
 
 
 const requestHandler = (req, res) => {
