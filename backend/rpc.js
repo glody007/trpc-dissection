@@ -1,6 +1,12 @@
 class Procedure {
     type = ''
     handler = () => {}
+    validator = null
+
+    input(validator) { 
+        this.validator = validator
+        return this
+    }
 
     query(handler) {
         this.type = 'query'
@@ -20,6 +26,7 @@ const createRouter = (procedureMap) => {
     Object.entries(procedureMap).forEach(([key, value]) => {
         router[key] = {
             type: value.type,
+            validator: value.validator,
             handler: value.handler
         }
     })

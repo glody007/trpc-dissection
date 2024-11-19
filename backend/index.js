@@ -1,26 +1,31 @@
 var http = require('http');
+var { z } = require('zod');
+
 const { createRPC } = require('./rpc');
 
 const rpc = createRPC()
 
 const router = rpc.router({
-    getShinobi: rpc.procedure().query(({ input }) => {
+    getShinobi: rpc.procedure().query(() => {
         return {
             "id": 1,
             "result": "Shinobi!"
         }
     }),
-    getSorcerer: rpc.procedure().query(({ input }) => {
+    getSorcerer: rpc.procedure().query(() => {
         return {
             "id": 1,
             "result": "Sorcerer!"
         }
     }),
-    addShinobi: rpc.procedure().mutation(({ input }) => {
-        return {
-            "data": input.name
-        }
-    })
+    addShinobi: rpc
+        .procedure()
+        .input(z.object({ name: z.string() }))
+        .mutation(({ input }) => {
+            return {
+                "data": input.name
+            }
+        })
 })
 
 
@@ -57,8 +62,24 @@ const requestHandler = (req, res) => {
             return
         }
 
+        if(route.validator) {
+            const result = route.validator.safeParse(data.body);
+            if(!result.success) {
+                res.end(JSON.stringify({
+                    "error": {
+                        "code": -101,
+                        "message": "Invalid input",
+                        "errors": result.error.issues
+                    }
+                }));
+                return
+            }
+            res.end(JSON.stringify(route.handler({ input: result.data })));
+            return
+        }
 
-        res.end(JSON.stringify(route.handler({ input: data.body })));
+
+        res.end(JSON.stringify(route.handler()));
         return
     } catch(e) {
         res.end({
