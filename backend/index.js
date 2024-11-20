@@ -1,7 +1,7 @@
 var http = require('http');
 var { z } = require('zod');
 
-const { createRPC } = require('./rpc');
+const { createRPC, generateInterfaceDefinitionFile } = require('./rpc');
 
 const rpc = createRPC()
 
@@ -95,6 +95,9 @@ const requestHandler = (req, res) => {
 
 const port = 8000;
 
-http.createServer(requestHandler).listen(port);
+const server = http.createServer(requestHandler)
 
-console.log(`Server running at http://127.0.0.1:${port}/`);
+server.listen(port, () => {
+    console.log(`Server running at http://127.0.0.1:${port}/`);
+    generateInterfaceDefinitionFile(router, '../idf.json')
+});

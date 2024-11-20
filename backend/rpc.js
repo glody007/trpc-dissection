@@ -1,3 +1,5 @@
+var fs = require('fs');
+
 class Procedure {
     type = ''
     handler = () => {}
@@ -27,6 +29,7 @@ const createRouter = (procedureMap) => {
         router[key] = {
             type: value.type,
             validator: value.validator,
+            validatorDef: value.validatorDef,
             handler: value.handler
         }
     })
@@ -40,7 +43,17 @@ const createRPC = () => {
     }
 }
 
+const generateInterfaceDefinitionFile = (router, path) => {
+    const definitions = Object.entries(router).map(([key, value]) => ({
+        name: key,
+        type: value.type,
+        input: value.validator ? value.validator.shape : null,
+    }))
+    fs.writeFileSync(path, JSON.stringify(definitions))
+}
+
 module.exports = {
-    createRPC
+    createRPC,
+    generateInterfaceDefinitionFile
 }
 
