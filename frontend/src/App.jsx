@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import './App.css'
-import { createClient } from './rpc-client'
+import rpc from 'rpc'
+
 
 function App() {
   const [result, setResult] = useState()
@@ -10,7 +11,7 @@ function App() {
   async function getShinobi() {
     setLoading(true)
     try {
-      const client = createClient('http://localhost:8000/rpc')
+      const client = rpc.createClient('http://localhost:8000/rpc')
       const response = await client.api.getShinobi()
       setResult(JSON.stringify(response))
     } catch(e) {

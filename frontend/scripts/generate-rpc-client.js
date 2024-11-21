@@ -6,7 +6,7 @@ const readDefinitions = (path) => {
 }
 
 
-const generateJsClient = (sourcePath, destPath) => {
+const generateJsClient = (sourcePath) => {
     const definitions = readDefinitions(sourcePath)
     const clientString = `
 const fetchRPC = async (url, definition, input) => {
@@ -37,12 +37,34 @@ class RPCClient {
     }
 }
 
-export const createClient = (url) => {
+const createClient = (url) => {
     return new RPCClient(url)
 }
+
+module.exports = {
+    createClient
+}
     `
-    fs.writeFileSync(destPath, clientString)
+
+const packagejsonString = `
+{
+  "name": "rpc",
+  "version": "1.0.0",
+  "main": "index.js"
+}
+    `
+
+    fs.mkdir("node_modules/rpc", { recursive: true }, (err) => {
+        if(err) throw err
+    })
+    fs.writeFileSync('node_modules/rpc/index.js', clientString)
+    fs.writeFileSync('node_modules/rpc/package.json', packagejsonString)
+
+    if (fs.existsSync('node_modules/.vite')) {
+        fs.rmSync('node_modules/.vite', { recursive: true });
+    }
 }
 
-generateJsClient('../idf.json', 'src/rpc-client.js')
+
+generateJsClient('../idf.json')
 
