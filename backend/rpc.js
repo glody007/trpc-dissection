@@ -43,17 +43,21 @@ const createRPC = () => {
     }
 }
 
-const generateInterfaceDefinitionFile = (router, path) => {
+const generateDefinitions = (router) => {
     const definitions = Object.entries(router).map(([key, value]) => ({
         name: key,
         type: value.type,
         input: value.validator ? value.validator.shape : null,
     }))
-    fs.writeFileSync(path, JSON.stringify(definitions))
+    return definitions
+}
+
+const generateInterfaceDefinitionFile = (router, path) => {
+    fs.writeFileSync(path, JSON.stringify(generateDefinitions(router)))
 }
 
 module.exports = {
     createRPC,
-    generateInterfaceDefinitionFile
+    generateInterfaceDefinitionFile,
 }
 

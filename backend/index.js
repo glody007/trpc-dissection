@@ -35,6 +35,11 @@ const requestHandler = (req, res) => {
     body += chunk;
   });
 
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Request-Method', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'OPTIONS, GET');
+  res.setHeader('Access-Control-Allow-Headers', '*');
+
   req.on('end', function() {
     res.writeHead(200, {'Content-Type': 'application/json'});
 
