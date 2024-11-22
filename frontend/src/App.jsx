@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import './App.css'
-import rpc from 'rpc'
+import rpc from './rpc-client'
 
 
 function App() {
