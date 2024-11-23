@@ -1,4 +1,13 @@
-const fetchRPC = async (url, definition, input) => {
+
+type InputType = any
+
+type DefinitionType = {
+    name: string,
+    type: string,
+    input: any
+}
+
+const fetchRPC = async (url: string, definition: DefinitionType) => {
     return fetch(url, {
         method: 'POST',
         headers: {
@@ -7,14 +16,14 @@ const fetchRPC = async (url, definition, input) => {
         body: JSON.stringify({
             procedure: definition.name,
             type: definition.type,
-            body: input
+            body: definition.input
         })
     }).then(res => res.json())
 }
 
 const proxyHandler = {
-    get: function(target, prop) {
-        return function(...args) {
+    get: function(target: RPCClient, prop: string) {
+        return function(...args: InputType[]) {
             return fetchRPC(target.url, {
                 "name": prop,
                 "type": "query",
@@ -25,12 +34,13 @@ const proxyHandler = {
 }
 
 class RPCClient {
-    constructor(url) {
+    url = ''
+    constructor(url: string) {
         this.url = url
     }
 }
 
-const createClient = (url) => {
+const createClient = (url: string) => {
     return {
         api: new Proxy(new RPCClient(url), proxyHandler)
     }
