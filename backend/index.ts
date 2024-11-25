@@ -1,31 +1,6 @@
 import * as http from 'http';
 import { z } from 'zod';
-import  { createRPC } from './rpc';
-
-const rpc = createRPC()
-
-const router = rpc.router({
-    getShinobi: rpc.procedure().query(async () => {
-        return {
-            "id": 1,
-            "result": "Shinobi!"
-        }
-    }),
-    getSorcerer: rpc.procedure().query(async () => {
-        return {
-            "id": 1,
-            "result": "Sorcerer!"
-        }
-    }),
-    addShinobi: rpc
-        .procedure()
-        .input(z.object({ name: z.string() }))
-        .mutation(async ({ input }) => {
-            return {
-                "data": input.name
-            }
-        })
-})
+import { router } from './router';
 
 const bodyValidator = z.object({
     procedure: z.string(),
@@ -42,7 +17,7 @@ const requestHandler = async (req: http.IncomingMessage, res: http.ServerRespons
 
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Request-Method', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'OPTIONS, GET');
+    res.setHeader('Access-Control-Allow-Methods', 'OPTIONS, POST');
     res.setHeader('Access-Control-Allow-Headers', '*');
 
     req.on('end', async function() {
@@ -57,10 +32,25 @@ const requestHandler = async (req: http.IncomingMessage, res: http.ServerRespons
             res.end("Not found");
             return
         }
+
+        const keys = Object.keys(router)
     
         try {
             const data =  bodyValidator.parse(JSON.parse(body));
-            const route = router[data.procedure];
+
+            if(!keys.includes(data.procedure)) {
+                res.end(JSON.stringify({
+                    "error": {
+                        "code": -100,
+                        "message": "Procedure not found"
+                    }
+                }));
+                return
+            }
+
+            const procedure = data.procedure as keyof typeof router;
+
+            const route = router[procedure];
             if(!route || route.type !== data.type) {
                 res.end(JSON.stringify({
                 "error": {
@@ -71,7 +61,7 @@ const requestHandler = async (req: http.IncomingMessage, res: http.ServerRespons
                 return
             }
     
-            if(route.validator) {
+            if(route.validator && typeof(route.validator) === typeof(z.ZodSchema)) {
                 const result = route.validator.safeParse(data.body);
                 if(!result.success) {
                     res.end(JSON.stringify({
