@@ -32,13 +32,11 @@ const requestHandler = async (req: http.IncomingMessage, res: http.ServerRespons
             res.end("Not found");
             return
         }
-
-        const keys = Object.keys(router)
     
         try {
-            const data =  bodyValidator.parse(JSON.parse(body));
+            const data = bodyValidator.parse(JSON.parse(body));
 
-            if(!keys.includes(data.procedure)) {
+            if(!Object.keys(router).includes(data.procedure)) {
                 res.end(JSON.stringify({
                     "error": {
                         "code": -100,
@@ -51,7 +49,7 @@ const requestHandler = async (req: http.IncomingMessage, res: http.ServerRespons
             const procedure = data.procedure as keyof typeof router;
 
             const route = router[procedure];
-            if(!route || route.type !== data.type) {
+            if(!route || route.type !== data.type || typeof route.handler !== 'function') {
                 res.end(JSON.stringify({
                 "error": {
                     "code": -100,
@@ -60,8 +58,8 @@ const requestHandler = async (req: http.IncomingMessage, res: http.ServerRespons
                 }));
                 return
             }
-    
-            if(route.validator && typeof(route.validator) === typeof(z.ZodSchema)) {
+
+            if(route.validator) {
                 const result = route.validator.safeParse(data.body);
                 if(!result.success) {
                     res.end(JSON.stringify({
@@ -73,6 +71,7 @@ const requestHandler = async (req: http.IncomingMessage, res: http.ServerRespons
                     }));
                     return
                 }
+
                 const handlerResult =  await route.handler({ input: result.data });
                 res.end(JSON.stringify(handlerResult));
                 return
@@ -80,7 +79,7 @@ const requestHandler = async (req: http.IncomingMessage, res: http.ServerRespons
     
             const handlerResult =  await route.handler();
             res.end(JSON.stringify(handlerResult));
-            return
+            return  
         } catch(e) {
             res.end({
                 "error": {
