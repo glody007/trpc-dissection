@@ -12,8 +12,7 @@ class Procedure<HandlerType , InputType = undefined> {
 
     input<VType extends z.Schema<any>>(validator?: VType) {
         this.validator = validator
-        
-        return this as Procedure<HandlerType extends (...args: any[]) => Promise<any> ? ReturnType<HandlerType> : HandlerType, z.infer<VType>>
+        return this as Procedure<HandlerType, z.infer<VType>>
     }
 
     query<HType extends HandlerType>(handler: ({ input }:{ input: InputType }) => Promise<HType>) {
