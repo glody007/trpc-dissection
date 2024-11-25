@@ -1,5 +1,4 @@
-
-type InputType = any
+import { RouterType, Procedure } from "../../backend/rpc"
 
 type DefinitionType = {
     name: string,
@@ -23,7 +22,7 @@ const fetchRPC = async (url: string, definition: DefinitionType) => {
 
 const proxyHandler = {
     get: function(target: RPCClient, prop: string) {
-        return function(...args: InputType[]) {
+        return function(...args: any[]) {
             return fetchRPC(target.url, {
                 "name": prop,
                 "type": "query",
@@ -40,9 +39,15 @@ class RPCClient {
     }
 }
 
-const createClient = (url: string) => {
+const createClient = <Rtype extends RouterType>(url: string) => {
     return {
         api: new Proxy(new RPCClient(url), proxyHandler)
+    } as unknown as {
+        api: {
+            [T in keyof Rtype]: 
+                (input: Rtype[T] extends Procedure<any, infer InputType> ? InputType : undefined ) => 
+                    Promise<Rtype[T] extends Procedure<infer HandlerType, any> ? HandlerType : never>
+        }
     }
 }
 

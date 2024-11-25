@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 
-class Procedure<HandlerType , InputType = undefined> {
+export class Procedure<HandlerType, InputType = undefined> {
     type?: 'query' | 'mutation'
     handler: unknown = async () => {}
     validator?: z.Schema<any>
@@ -43,3 +43,5 @@ export const createRPC = <Rtype extends Record<keyof Rtype, Procedure<unknown, u
         router: <Router extends Rtype>(procedureMap: Router) => createRouter<Router>(procedureMap)
     }
 }
+
+export type RouterType = ReturnType<typeof createRouter>

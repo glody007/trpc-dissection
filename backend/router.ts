@@ -26,4 +26,4 @@ export const router = rpc.router({
         })
 })
 
-export type RouterType = typeof router
+export type AppRouter = typeof router
