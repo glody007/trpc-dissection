@@ -41,9 +41,6 @@ export const createRPC = <Rtype extends Record<keyof Rtype, Procedure<unknown, u
 ) => {
     return {
         procedure: () => new Procedure<unknown, unknown>(),
-        test: <Rtype>(rt: Rtype) => {
-            return rt
-        },
         router: <Router extends Rtype>(procedureMap: Router) => createRouter<Router>(procedureMap)
     }
 }
