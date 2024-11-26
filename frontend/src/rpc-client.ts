@@ -20,12 +20,24 @@ const fetchRPC = async (url: string, definition: DefinitionType) => {
     }).then(res => res.json())
 }
 
-const proxyHandler = {
+const queryHandler = {
     get: function(target: RPCClient, prop: string) {
         return function(...args: any[]) {
             return fetchRPC(target.url, {
                 "name": prop,
                 "type": "query",
+                "input": args[0]
+            })
+        }
+    }
+}
+
+const mutationHandler = {
+    get: function(target: RPCClient, prop: string) {
+        return function(...args: any[]) {
+            return fetchRPC(target.url, {
+                "name": prop,
+                "type": "mutation",
                 "input": args[0]
             })
         }
@@ -53,7 +65,10 @@ type FilterProceduresByType<T, QueryType extends "query" | "mutation"> = RemoveN
 
 const createClient = <Rtype extends RouterType>(url: string) => {
     return {
-        api: new Proxy(new RPCClient(url), proxyHandler)
+        api: {
+            query: new Proxy(new RPCClient(url), queryHandler),
+            mutate: new Proxy(new RPCClient(url), mutationHandler)
+        }
     } as unknown as {
         api: {
             query: {
