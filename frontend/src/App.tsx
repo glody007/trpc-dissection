@@ -13,7 +13,7 @@ function App() {
   async function getShinobi() {
     setLoading(true)
     try {
-      const response = await client.api.getShinobi(undefined)
+      const response = await client.api.query.getShinobi(undefined)
       setResult(JSON.stringify(response))
     } catch(e) {
       setError(JSON.stringify(e))
@@ -30,7 +30,7 @@ function App() {
     }
     setLoading(true)
     try {
-      const response = await client.api.addShinobi({ name })
+      const response = await client.api.mutate.addShinobi({ name })
       setResult(JSON.stringify(response))
     } catch(e) {
       setError(JSON.stringify(e))

@@ -39,14 +39,33 @@ class RPCClient {
     }
 }
 
+type RemoveNever<T> = {
+    [K in keyof T as T[K] extends never ? never : K]: T[K]
+};
+
+type FilterProceduresByType<T, QueryType extends "query" | "mutation"> = RemoveNever<{
+    [K in keyof T]: T[K] extends Procedure<any, infer Type, any> 
+      ? Type extends QueryType
+        ? T[K] 
+        : never 
+      : never
+}>
+
 const createClient = <Rtype extends RouterType>(url: string) => {
     return {
         api: new Proxy(new RPCClient(url), proxyHandler)
     } as unknown as {
         api: {
-            [T in keyof Rtype]: 
-                (input: Rtype[T] extends Procedure<any, infer InputType> ? InputType : undefined ) => 
-                    Promise<Rtype[T] extends Procedure<infer HandlerType, any> ? HandlerType : never>
+            query: {
+                [T in keyof FilterProceduresByType<Rtype, 'query'>]:
+                (input: Rtype[T] extends Procedure<any, any, infer InputType> ? InputType : undefined ) => 
+                    Promise<Rtype[T] extends Procedure<infer HandlerType, any, any> ? HandlerType : never>
+            }, 
+            mutate: {
+                [T in keyof FilterProceduresByType<Rtype, 'mutation'>]:
+                (input: Rtype[T] extends Procedure<any, any, infer InputType> ? InputType : undefined ) => 
+                    Promise<Rtype[T] extends Procedure<infer HandlerType, any, any> ? HandlerType : never>
+            }, 
         }
     }
 }

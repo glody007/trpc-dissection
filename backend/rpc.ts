@@ -1,8 +1,8 @@
 import { z } from "zod";
 
 
-export class Procedure<HandlerType, InputType = undefined> {
-    type?: 'query' | 'mutation'
+export class Procedure<HandlerType, Type, InputType = undefined> {
+    type?: unknown
     handler: unknown = async () => {}
     validator?: z.Schema<any>
 
@@ -12,34 +12,34 @@ export class Procedure<HandlerType, InputType = undefined> {
 
     input<VType extends z.Schema<any>>(validator?: VType) {
         this.validator = validator
-        return this as Procedure<HandlerType, z.infer<VType>>
+        return this as Procedure<HandlerType, Type, z.infer<VType>>
     }
 
     query<HType extends HandlerType>(handler: ({ input }:{ input: InputType }) => Promise<HType>) {
         this.type = 'query'
         this.handler = handler
-        return this as Procedure<HType, InputType>
+        return this as Procedure<HType, 'query', InputType>
     }
 
     mutation<HType extends HandlerType>(handler: ({ input }:{ input:InputType }) => Promise<HType>) {
         this.type = 'mutation'
         this.handler = handler
-        return this as Procedure<HType, InputType>
+        return this as Procedure<HType, 'mutation', InputType>
     }
 }
 
 
-const createRouter = <RType extends Record<keyof RType, Procedure<unknown, unknown>>>(
+const createRouter = <RType extends Record<keyof RType, Procedure<unknown, unknown, unknown>>>(
     procedureMap: RType
 ) => {
     return procedureMap
 }
 
-export const createRPC = <Rtype extends Record<keyof Rtype, Procedure<unknown, unknown>>>(
+export const createRPC = <Rtype extends Record<keyof Rtype, Procedure<unknown, unknown, unknown>>>(
     
 ) => {
     return {
-        procedure: () => new Procedure<unknown, unknown>(),
+        procedure: () => new Procedure<unknown, unknown, unknown>(),
         router: <Router extends Rtype>(procedureMap: Router) => createRouter<Router>(procedureMap)
     }
 }
