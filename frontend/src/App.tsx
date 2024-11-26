@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import './App.css'
 import rpc from './rpc-client.ts'
 import { AppRouter } from '../../backend/router.ts'
+import { never } from 'zod'
 
 const client = rpc.createClient<AppRouter>('http://localhost:8000/rpc')
 
@@ -13,7 +14,7 @@ function App() {
   async function getShinobi() {
     setLoading(true)
     try {
-      const response = await client.api.query.getShinobi(undefined)
+      const response = await client.api.query.getShinobi()
       setResult(JSON.stringify(response))
     } catch(e) {
       setError(JSON.stringify(e))

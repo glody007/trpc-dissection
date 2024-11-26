@@ -73,12 +73,12 @@ const createClient = <Rtype extends RouterType>(url: string) => {
         api: {
             query: {
                 [T in keyof FilterProceduresByType<Rtype, 'query'>]:
-                (input: Rtype[T] extends Procedure<any, any, infer InputType> ? InputType : undefined ) => 
+                (input: Rtype[T] extends Procedure<any, any, infer InputType> ? InputType : void ) => 
                     Promise<Rtype[T] extends Procedure<infer HandlerType, any, any> ? HandlerType : never>
             }, 
             mutate: {
                 [T in keyof FilterProceduresByType<Rtype, 'mutation'>]:
-                (input: Rtype[T] extends Procedure<any, any, infer InputType> ? InputType : undefined ) => 
+                (input: Rtype[T] extends Procedure<any, any, infer InputType> ? InputType : void ) => 
                     Promise<Rtype[T] extends Procedure<infer HandlerType, any, any> ? HandlerType : never>
             }, 
         }
