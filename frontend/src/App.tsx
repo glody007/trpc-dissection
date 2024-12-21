@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react'
 import './App.css'
 import rpc from './rpc-client.ts'
 import { AppRouter } from '../../backend/router.ts'
-import { never } from 'zod'
 
 const client = rpc.createClient<AppRouter>('http://localhost:8000/rpc')
 

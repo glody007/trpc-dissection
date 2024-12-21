@@ -69,7 +69,7 @@ const createClient = <Rtype extends RouterType>(url: string) => {
             query: new Proxy(new RPCClient(url), queryHandler),
             mutate: new Proxy(new RPCClient(url), mutationHandler)
         }
-    } as unknown as {
+    } as {
         api: {
             query: {
                 [T in keyof FilterProceduresByType<Rtype, 'query'>]:
