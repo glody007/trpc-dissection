@@ -1,6 +1,8 @@
 # Minimal tRPC Implementation
 
-Implementation of minimal version of tRPC from scratch.
+Implementation of minimal version of tRPC from scratch. 
+
+Using builder pattern to create the API, Javascript Proxy to create client, and TypeScript to have an end-to-end type-safe API.
 
 ## 📚 Blog Post
 
