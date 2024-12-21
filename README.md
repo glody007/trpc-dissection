@@ -1,16 +1,17 @@
 # Minimal tRPC Implementation
 
-A lightweight implementation of tRPC demonstrating type-safe API communication between client and server.
+Implementation of minimal version of tRPC from scratch.
 
-## 📚 Related Resources
+## 📚 Blog Post
 
-- 📖 [Read the full tutorial on implementing a minimal version of tRPC](https://www.softwaredissection.com/posts/trpc-dissection-part1)
+- 📖 [Read the full tutorial on implementing a minimal version of tRPC part 1 (RPC)](https://www.softwaredissection.com/posts/trpc-dissection-part1)
+
+- 📖 [Read the full tutorial on implementing a minimal version of tRPC part 2 (Type safety)](https://www.softwaredissection.com/posts/trpc-dissection-part2)
 
 ## ✨ Features
 
 - Type-safe API endpoints
 - Minimal setup with Node.js and TypeScript 
-- Simple client-server communication
 - Zero-configuration type inference
 
 ## 📁 Project Structure
@@ -18,13 +19,13 @@ A lightweight implementation of tRPC demonstrating type-safe API communication b
 ```
 ├── frontend/
 │   ├── src/
-│   │   ├── rpc-client.ts    # tRPC client 
+│   │   ├── rpc-client.ts    # tRPC client core
 │   │   └── App.tsx          # React App entry point
 │   ├── package.json
 │   └── tsconfig.json
 │
 ├── backend/
-│   ├── rpc.ts          # tRPC server configuration
+│   ├── rpc.ts           # tRPC server core
 │   ├── router.ts        # API route definitions
 │   └── index.ts         # Server entry point
 │   ├── package.json
@@ -35,78 +36,96 @@ A lightweight implementation of tRPC demonstrating type-safe API communication b
 
 ### Server-side
 
-`server/src/trpc.ts`:
+`backend/rpc.ts`:
 ```typescript
-import { initTRPC } from '@trpc/server';
+export class Procedure {
+    // Procedure definition here
+}
 
-export const t = initTRPC.create();
-export const router = t.router;
-export const publicProcedure = t.procedure;
+export createRouter = (procedureMap) => {
+    // Router creation code here
+}
+
+export const createRPC = () => {
+    // RPC creation code here
+}
+
+export type RouterType = ReturnType<typeof createRouter>
 ```
 
-`server/src/router.ts`:
+`backend/router.ts`:
 ```typescript
 import { z } from 'zod';
-import { router, publicProcedure } from './trpc';
+import  { createRPC } from './rpc';
 
-export const appRouter = router({
-  // Your RPC endpoints here
-});
+const rpc = createRPC()
 
-export type AppRouter = typeof appRouter;
+export const router = rpc.router({
+    // Your RPC endpoints here
+})
+
+export type AppRouter = typeof router
+```
+
+`backend/index.ts`:
+```typescript
+import { router } from './router';
+
+const requestHandler = async (req: http.IncomingMessage, res: http.ServerResponse) => {
+    // Your request handler code here (using the router)
+}
+
+const server = http.createServer(requestHandler)
+
+const port = // Your port here
+server.listen(port);
 ```
 
 ### Client-side
 
-`client/src/trpc.ts`:
+`client/src/rpc-client.ts`:
 ```typescript
-import { createTRPCProxyClient, httpBatchLink } from '@trpc/client';
-import type { AppRouter } from '../../server/src/router';
+import { RouterType, Procedure } from "../../backend/rpc"
 
-export const trpc = createTRPCProxyClient<AppRouter>({
-  links: [
-    httpBatchLink({
-      url: 'http://localhost:3000/trpc',
-    }),
-  ],
-});
+class RPCClient {
+    // Client implementation here
+}
+
+const createClient = (url: string) => {
+    // client proxy creation code here
+}
+
+export default {
+    createClient
+}
 ```
 
 ## 🚀 Getting Started
 
 1. Clone the repository:
 ```bash
-git clone <your-repo-url>
+git clone https://github.com/glody007/trpc
 ```
 
 2. Install dependencies:
 ```bash
-# Install server dependencies
-cd server
-npm install
+# From the root directory
+cd backend
+pnpm install
 
-# Install client dependencies
-cd ../client
-npm install
+# From the root directory
+cd frontend
+pnpm install
 ```
 
 3. Start the server:
 ```bash
-cd server
-npm run dev
+# From the backend directory
+npm start
 ```
 
 4. Start the client:
 ```bash
-cd client
+# From the frontend directory
 npm run dev
-```
-
-## 📦 Dependencies
-
-### Server
-- `typescript`
-- `zod`
-
-### Client
-- `typescript`
+````
