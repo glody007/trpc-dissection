@@ -106,7 +106,7 @@ export default {
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/glody007/trpc
+git clone https://github.com/glody007/trpc-dissection
 ```
 
 2. Install dependencies:
