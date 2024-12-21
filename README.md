@@ -79,7 +79,7 @@ const requestHandler = async (req: http.IncomingMessage, res: http.ServerRespons
 
 const server = http.createServer(requestHandler)
 
-const port = // Your port here
+const port = 8000;
 server.listen(port);
 ```
 
