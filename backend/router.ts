@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import  { createRPC, Procedure } from './rpc';
+import  { createRPC } from './rpc';
 
 const rpc = createRPC()
 
